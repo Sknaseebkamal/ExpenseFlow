@@ -108,19 +108,7 @@ Visual Studio Code
 Postman (optional, for API testing)
 Git (optional, for version control)
 7. Installation and Setup
-Step 1: Clone the Repository
-
-Clone the project from GitHub:
-
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-
-Navigate to the project directory:
-
-cd Expense-Voucher-System
-
-Replace <YOUR_GITHUB_REPOSITORY_URL> with your actual repository URL.
-
-Step 2: Configure the MySQL Database
+Step 1: Configure the MySQL Database
 Start your MySQL server.
 Open MySQL Workbench or another MySQL client.
 Create the application database.
@@ -130,7 +118,7 @@ Ensure that the database name, username, password, and connection settings match
 
 Important: Use the database name expected by your application. Update the example above if your project uses a different database name.
 
-Step 3: Configure the Backend
+Step 2: Configure the Backend
 
 Open a terminal in the project directory:
 
@@ -164,7 +152,7 @@ npm run dev
 
 This command assumes that the backend/package.json file defines a dev script. If it does not, use the start command configured in your project.
 
-Step 4: Configure the Frontend
+Step 3: Configure the Frontend
 
 Open a second terminal and navigate to the frontend directory:
 
@@ -194,10 +182,10 @@ Verify that unauthorized API requests are rejected.
 
 The following demo accounts are intended for testing the different user roles in ExpenseFlow.
 
-Role	Email	Password
-Employee	employee@example.com	TestPass123!
-Director	director@example.com	Director@123
-Accounts	accounts@example.com	AccountsPass123!
+Role	        Email	                Password
+Employee	employee@example.com	  TestPass123!
+Director	director@example.com	  Director@123
+Accounts	accounts@example.com	  AccountsPass123!
 Employee Account
 
 Email: employee@example.com

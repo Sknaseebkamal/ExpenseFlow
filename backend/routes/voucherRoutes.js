@@ -28,7 +28,7 @@ function validateVoucher(data) {
         department,
         expense_title,
         amount
-    } = data;
+    } = data;  
 
     if (
         !voucher_date ||

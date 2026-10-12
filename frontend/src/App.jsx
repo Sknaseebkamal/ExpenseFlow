@@ -29,6 +29,7 @@ function App() {
   const [vouchers, setVouchers] = useState([]);
   const [summary, setSummary] = useState({});
   const [form, setForm] = useState(emptyVoucher);
+  const [signatureFile, setSignatureFile] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
@@ -131,6 +132,7 @@ function App() {
 
   function openCreateForm() {
     setEditingId(null);
+    setSignatureFile(null);
     setForm({
       ...emptyVoucher,
       voucher_date: today(),
@@ -146,6 +148,7 @@ function App() {
     if (voucher.status !== "DRAFT") return;
 
     setEditingId(voucher.id);
+    setSignatureFile(null);
 
     setForm({
       voucher_date: String(voucher.voucher_date).slice(0, 10),
@@ -166,6 +169,47 @@ function App() {
   function updateField(event) {
     const { name, value } = event.target;
     setForm((previous) => ({ ...previous, [name]: value }));
+  }
+
+  async function uploadSignature(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const supportedTypes = ["image/png", "image/jpeg", "image/webp"];
+
+    if (!supportedTypes.includes(file.type)) {
+      setError("Choose a PNG, JPG, or WebP signature image.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setError("The signature image must be 2 MB or smaller.");
+      event.target.value = "";
+      return;
+    }
+
+    const uploadData = new FormData();
+    uploadData.append("signature", file);
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await api.post("/signatures", uploadData);
+
+      setForm((previous) => ({
+        ...previous,
+        employee_signature: response.data.signature,
+      }));
+      setSignatureFile(file);
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Unable to upload your signature image."
+      );
+      event.target.value = "";
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function saveVoucher(event) {
@@ -197,6 +241,7 @@ function App() {
       setShowForm(false);
       setEditingId(null);
       setForm(emptyVoucher);
+      setSignatureFile(null);
 
       await loadVouchers();
     } catch (err) {
@@ -558,13 +603,23 @@ function App() {
 
                 <Field label="Employee Signature *" wide>
                   <input
-                    name="employee_signature"
-                    value={form.employee_signature}
-                    onChange={updateField}
-                    placeholder="Type your full name as signature"
-                    required
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={uploadSignature}
+                    disabled={loading}
                   />
-                  <small>Text signature for this prototype; image upload is not implemented yet.</small>
+                  <small>Upload a PNG, JPG, or WebP image (2 MB maximum). A signature is required before submitting.</small>
+                  {form.employee_signature && (
+                    form.employee_signature.startsWith("/signatures/") ? (
+                      <SignatureImage
+                        value={form.employee_signature}
+                        file={signatureFile}
+                        label="Your signature preview"
+                      />
+                    ) : (
+                      <p>Existing signature: {form.employee_signature}</p>
+                    )
+                  )}
                 </Field>
               </div>
 
@@ -752,11 +807,14 @@ function App() {
               <Detail label="Amount" value={formatAmount(selectedVoucher.amount)} />
               <Detail label="Voucher Date" value={formatDate(selectedVoucher.voucher_date)} />
               <Detail label="Expense Date" value={formatDate(selectedVoucher.expense_date)} />
-              <Detail label="Employee Signature" value={selectedVoucher.employee_signature} />
+              <Detail label="Current Status" value={String(selectedVoucher.status || "").replaceAll("_", " ")} />
+              <SignatureDetail value={selectedVoucher.employee_signature} />
               <Detail label="Director Signature" value={selectedVoucher.director_signature} />
               <Detail label="Approval Date" value={selectedVoucher.approval_date ? String(selectedVoucher.approval_date).replace("T", " ").slice(0, 19) : "—"} />
               <Detail label="Rejection Reason" value={selectedVoucher.rejection_reason} />
               <Detail label="Description" value={selectedVoucher.expense_description} wide />
+              <Detail label="Created" value={selectedVoucher.created_at ? String(selectedVoucher.created_at).replace("T", " ").slice(0, 19) : "—"} />
+              <Detail label="Last Updated" value={selectedVoucher.updated_at ? String(selectedVoucher.updated_at).replace("T", " ").slice(0, 19) : "—"} />
             </div>
 
             {isDirector && selectedVoucher.status === "PENDING_APPROVAL" && (
@@ -818,6 +876,58 @@ function Detail({ label, value, wide }) {
       <p>{value || "—"}</p>
     </div>
   );
+}
+
+function SignatureDetail({ value }) {
+  return (
+    <div>
+      <strong>Employee Signature</strong>
+      {value?.startsWith("/signatures/") ? (
+        <SignatureImage value={value} label="Employee signature" />
+      ) : (
+        <p>{value || "—"}</p>
+      )}
+    </div>
+  );
+}
+
+function SignatureImage({ value, file, label }) {
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageError, setImageError] = useState("");
+
+  useEffect(() => {
+    let objectUrl;
+    let cancelled = false;
+
+    setImageUrl("");
+    setImageError("");
+
+    if (file) {
+      objectUrl = URL.createObjectURL(file);
+      setImageUrl(objectUrl);
+    } else if (value?.startsWith("/signatures/")) {
+      api.get(value, { responseType: "blob" })
+        .then((response) => {
+          objectUrl = URL.createObjectURL(response.data);
+          if (!cancelled) setImageUrl(objectUrl);
+        })
+        .catch(() => {
+          if (!cancelled) setImageError("Unable to load the signature image.");
+        });
+    } else {
+      setImageError("This signature is not an uploaded image.");
+    }
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [file, value]);
+
+  if (imageError) return <p className="signature-error">{imageError}</p>;
+  if (!imageUrl) return <p className="signature-loading">Loading signature…</p>;
+
+  return <img className="signature-image" src={imageUrl} alt={label} />;
 }
 
 function StatCard({ title, value, description, icon }) {

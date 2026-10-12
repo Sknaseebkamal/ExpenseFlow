@@ -5,6 +5,7 @@ require("dotenv").config();
 const pool = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const voucherRoutes = require("./routes/voucherRoutes");
+const signatureRoutes = require("./routes/signatureRoutes");
 const directorRoutes = require("./routes/directorRoutes");
 const accountsRoutes = require("./routes/accountsRoutes");
 
@@ -24,6 +25,7 @@ app.use("/api/auth", authRoutes);
 
 // Expense Voucher APIs
 app.use("/api/vouchers", voucherRoutes);
+app.use("/api/signatures", signatureRoutes);
 
 app.use("/api/director", directorRoutes);
 

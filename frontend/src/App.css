@@ -758,6 +758,28 @@ td button {
   border-radius: 10px;
 }
 
+.signature-image {
+  display: block;
+  max-width: min(100%, 280px);
+  max-height: 140px;
+  margin-top: 10px;
+  object-fit: contain;
+  object-position: left center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.signature-loading,
+.signature-error {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.signature-error {
+  color: #fca5a5;
+}
+
 .voucher-details label,
 .detail-grid label,
 .details-grid label {
@@ -979,4 +1001,3 @@ textarea:focus-visible {
     scroll-behavior: auto !important;
   }
 }
-
