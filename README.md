@@ -1,85 +1,129 @@
-ExpenseFlow – Expense Voucher Management System
+# ExpenseFlow – Expense Voucher Management System
 
 A role-based web application for managing employee expense vouchers, streamlining approval workflows, and maintaining expense records.
 
-1. Project Overview
+## Setup
 
-ExpenseFlow is a web-based Expense Voucher Management System designed to simplify and organize the employee expense reimbursement process.
+### Requirements
 
-The application allows employees to create, manage, and submit expense vouchers for approval. Directors can review submitted vouchers and approve or reject claims with appropriate remarks. Accounts personnel can view voucher records and monitor their approval status through a read-only interface.
+* Node.js and npm
+* MySQL Server
+* Visual Studio Code
+* Git (optional)
+* Postman (optional, for API testing)
 
-The system uses JWT authentication and role-based authorization to control access to application features according to each user's role.
+### Installation
 
-2. Key Features
-Employee Module
-Secure login and authentication.
-Create and manage expense vouchers.
-Save vouchers as drafts.
-Submit expense vouchers for approval.
-Track voucher approval status.
-View rejection reasons and remarks.
-Director Module
-View submitted expense vouchers.
-Review expense details and claimed amounts.
-Approve pending expense vouchers.
-Reject vouchers with a specified reason.
-Monitor voucher approval status.
-Accounts Module
-View expense voucher records.
-Monitor approval and rejection statuses.
-Access voucher information in read-only mode.
-Review expense records without modifying approval decisions.
-3. Technology Stack
-Component	Technologies
-Frontend	React, Vite, Axios, CSS
-Backend	Node.js, Express.js
-Authentication	JSON Web Token (JWT)
-Database	MySQL
-API Communication	REST API
-Development Tools	Visual Studio Code, npm, Postman
-4. Application Workflow
+**1. Configure the database**
 
-ExpenseFlow follows a role-based expense voucher approval workflow.
+Start your MySQL server and create the application database:
 
-Employee: Logs in, creates an expense voucher, saves it as a draft if necessary, and submits it for approval.
-Director: Reviews the submitted voucher and approves or rejects it.
-Employee: Checks the voucher status and reviews the rejection reason, if applicable.
-Accounts: Views voucher records and their current statuses for accounting and record-keeping purposes.
-Workflow Diagram
-                 EMPLOYEE
-                    |
-                    v
-           Create Expense Voucher
-                    |
-                    v
-             Save as Draft
-                    |
-                    v
-            Submit for Approval
-                    |
-                    v
-                 DIRECTOR
-                    |
-             Review Voucher
-                    |
-             +------+------+
-             |             |
-             v             v
-          Approve        Reject
-             |             |
-             v             v
-       Approved Status  Rejection Reason
-             |             |
-             +------+------+
-                    |
-                    v
-          ACCOUNTS DASHBOARD
-                    |
-                    v
-       View Voucher Records and Status
-5. Project Structure
+```sql
+CREATE DATABASE expenseflow;
+```
+
+**2. Install backend dependencies**
+
+Open a terminal in the project root:
+
+```bash
+cd backend
+npm install
+```
+
+Create a `.env` file inside the `backend` directory.
+
+Example configuration:
+
+```env
+PORT=5000
+DB_HOST=localhost
+DB_USER=your_mysql_username
+DB_PASSWORD=your_mysql_password
+DB_NAME=expenseflow
+JWT_SECRET=replace_with_a_strong_random_secret
+```
+
+Replace the example values with your actual MySQL credentials. The environment variable names must match those used in your backend code.
+
+**3. Start the backend**
+
+```bash
+npm run dev
+```
+
+This command assumes your backend defines a `dev` script in `backend/package.json`.
+
+The example backend URL is:
+
+```text
+http://localhost:5000
+```
+
+**4. Install and start the frontend**
+
+Open a second terminal from the project root:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open the frontend URL displayed in the terminal. With the default Vite configuration, it is usually:
+
+```text
+http://localhost:5173
+```
+
+**Note:** These instructions assume your project uses the directory structure and npm scripts described above. Check your actual configuration if a command fails.
+
+## Demo Accounts
+
+The following credentials are examples for local testing. They work only if matching accounts have been created in your database.
+
+| Role     | Email                                               | Password         |
+| -------- | --------------------------------------------------- | ---------------- |
+| Employee | [employee@example.com](mailto:employee@example.com) | TestPass123!     |
+| Director | [director@example.com](mailto:director@example.com) | Director@123     |
+| Accounts | [accounts@example.com](mailto:accounts@example.com) | AccountsPass123! |
+
+### Employee
+
+* Create expense vouchers.
+* Save vouchers as drafts.
+* Submit vouchers for approval.
+* Track voucher approval status.
+* View rejection reasons and remarks.
+
+### Director
+
+* View submitted expense vouchers.
+* Review expense details and claimed amounts.
+* Approve pending vouchers.
+* Reject vouchers with a reason.
+* Monitor approval decisions.
+
+### Accounts
+
+* View expense voucher records.
+* Monitor approval and rejection statuses.
+* Access voucher information in read-only mode.
+* Review expense records for accounting purposes.
+
+## Architecture
+
+* **Frontend:** React and Vite for the user interface, with Axios for HTTP communication and CSS for styling.
+* **Backend:** Node.js and Express.js for REST API development.
+* **Authentication:** JSON Web Tokens (JWT) for authenticated sessions.
+* **Authorization:** Role-based access control for Employee, Director, and Accounts users.
+* **Database:** MySQL for storing user accounts and expense voucher records.
+* **API Testing:** Postman for testing authentication, voucher operations, and access permissions.
+
+### Project Structure
+
+```text
 Expense-Voucher-System/
-│
 ├── frontend/
 │   ├── src/
 │   ├── public/
@@ -95,260 +139,358 @@ Expense-Voucher-System/
 │   └── .env
 │
 └── README.md
+```
+
+This is a representative structure. Update it to match the actual files and folders in your repository.
+
+## Application Workflow
+
+ExpenseFlow follows a role-based expense voucher approval process.
+
+```text
+EMPLOYEE
+   |
+   v
+Create Expense Voucher
+   |
+   v
+Save as Draft
+   |
+   v
+Submit for Approval
+   |
+   v
+DIRECTOR
+   |
+   v
+Review Voucher
+   |
+   +-------------------+
+   |                   |
+   v                   v
+Approve              Reject
+   |                   |
+   v                   v
+Approved             Rejected
+Status               + Reason
+   |                   |
+   +---------+---------+
+             |
+             v
+      ACCOUNTS DASHBOARD
+             |
+             v
+   View Voucher Records
+      and Their Status
+```
+
+## Database Schema
+
+The application uses MySQL to store user and expense voucher information.
+
+The exact tables and columns depend on your backend database implementation.
+
+### User
+
+Stores user account information and application roles.
+
+| Field      | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `id`       | Unique user identifier.                                 |
+| `name`     | User's display name.                                    |
+| `email`    | User's login email address.                             |
+| `password` | Should store a securely hashed password, not plaintext. |
+| `role`     | User role: Employee, Director, or Accounts.             |
+
+### Expense Voucher
+
+Stores expense details and tracks the approval workflow.
+
+| Field             | Description                                         |
+| ----------------- | --------------------------------------------------- |
+| `id`              | Unique voucher identifier.                          |
+| `voucherDate`     | Date of the voucher.                                |
+| `expenseDate`     | Date the expense occurred.                          |
+| `department`      | Employee's department.                              |
+| `title`           | Expense title.                                      |
+| `category`        | Expense category.                                   |
+| `description`     | Details about the expense.                          |
+| `amount`          | Claimed expense amount.                             |
+| `status`          | Current voucher status.                             |
+| `rejectionReason` | Reason provided when a voucher is rejected.         |
+| `employeeId`      | Identifier of the employee who created the voucher. |
+| `createdAt`       | Voucher creation timestamp.                         |
+| `updatedAt`       | Last modification timestamp.                        |
+
+**Important:** These tables and field names describe the intended data model. Confirm them against your actual MySQL schema and backend code before treating this section as the definitive database specification.
+
+### Voucher Statuses
+
+| Status             | Description                                     |
+| ------------------ | ----------------------------------------------- |
+| `DRAFT`            | Voucher saved but not submitted.                |
+| `PENDING_APPROVAL` | Voucher submitted and awaiting director review. |
+| `APPROVED`         | Voucher approved by the director.               |
+| `REJECTED`         | Voucher rejected with a recorded reason.        |
+
+The intended workflow is:
+
+```text
+DRAFT
+  |
+  v
+PENDING_APPROVAL
+  |
+  +----------------+
+  |                |
+  v                v
+APPROVED         REJECTED
+```
 
-Note: This is a representative structure. Update it if your actual project contains different files or directories.
+## API Documentation
 
-6. Prerequisites
+The backend exposes REST API endpoints for authentication, expense voucher management, and approval operations.
 
-Install the following software before running the application:
+Example API base URL:
 
-Node.js and npm
-MySQL Server
-Visual Studio Code
-Postman (optional, for API testing)
-Git (optional, for version control)
-7. Installation and Setup
-Step 1: Configure the MySQL Database
-Start your MySQL server.
-Open MySQL Workbench or another MySQL client.
-Create the application database.
-CREATE DATABASE expenseflow;
-Configure the database connection using the backend environment variables.
-Ensure that the database name, username, password, and connection settings match your backend configuration.
+```text
+http://localhost:5000/api
+```
 
-Important: Use the database name expected by your application. Update the example above if your project uses a different database name.
+The exact endpoint paths depend on your backend route definitions.
 
-Step 2: Configure the Backend
+### Authentication
 
-Open a terminal in the project directory:
+#### Login
 
-cd backend
+```http
+POST /api/auth/login
+```
 
-Install the backend dependencies:
+Authenticates a user and returns an authentication token if the credentials are valid.
 
-npm install
+Example request:
 
-Create a .env file in the backend directory.
+```json
+{
+  "email": "employee@example.com",
+  "password": "TestPass123!"
+}
+```
 
-Example configuration:
+The response should contain the JWT token and relevant user information, according to your implementation.
 
-PORT=5000
-DB_HOST=localhost
-DB_USER=your_mysql_username
-DB_PASSWORD=your_mysql_password
-DB_NAME=expenseflow
-JWT_SECRET=replace_with_a_strong_random_secret
+### Protected API Requests
 
-Configuration notes:
+Authenticated endpoints commonly use this HTTP header:
 
-Replace the example database credentials with your local MySQL credentials.
-Use a strong, randomly generated JWT secret.
-The environment variable names must match those referenced in your backend code.
-Never upload real credentials or secrets to a public GitHub repository.
+```http
+Authorization: Bearer <jwt-token>
+```
 
-Start the backend server:
+JSON requests commonly use:
 
-npm run dev
+```http
+Content-Type: application/json
+```
 
-This command assumes that the backend/package.json file defines a dev script. If it does not, use the start command configured in your project.
+### Employee Voucher Operations
 
-Step 3: Configure the Frontend
+Employee operations may include:
 
-Open a second terminal and navigate to the frontend directory:
+* Create an expense voucher.
+* Save a voucher as a draft.
+* Update a draft voucher.
+* Submit a voucher for approval.
+* View personal voucher records.
+* Track approval status and rejection reasons.
 
-cd frontend
+Example endpoint patterns:
 
-Install the frontend dependencies:
+```http
+GET    /api/vouchers
+POST   /api/vouchers
+GET    /api/vouchers/:id
+PUT    /api/vouchers/:id
+PATCH  /api/vouchers/:id
+DELETE /api/vouchers/:id
+```
 
-npm install
+These are common REST API patterns, not a claim that every endpoint is implemented. Keep only the paths and HTTP methods supported by your backend.
 
-Start the Vite development server:
+### Director Approval Operations
 
-npm run dev
+Director operations may include:
 
-Open the local URL displayed in the terminal.
+* View vouchers awaiting approval.
+* Review voucher details.
+* Approve submitted vouchers.
+* Reject vouchers with a reason.
+* View approval and rejection statuses.
 
-Step 5: Verify the Application
+Example endpoint patterns:
 
-After starting both servers:
+```http
+GET  /api/vouchers
+POST /api/vouchers/:id/approve
+POST /api/vouchers/:id/reject
+```
 
-Confirm that the backend starts successfully.
-Confirm that the frontend loads in your browser.
-Verify that the frontend can communicate with the backend API.
-Log in using a configured demo account.
-Test the features available to each role.
-Verify that unauthorized API requests are rejected.
-8. Demo Login Credentials
+The backend must verify that the authenticated user has the Director role before performing approval or rejection operations.
 
-The following demo accounts are intended for testing the different user roles in ExpenseFlow.
+### Accounts Operations
 
-Role	        Email	                Password
-Employee	employee@example.com	  TestPass123!
-Director	director@example.com	  Director@123
-Accounts	accounts@example.com	  AccountsPass123!
-Employee Account
+Accounts users can view voucher records and monitor their statuses.
 
-Email: employee@example.com
+Example endpoint pattern:
 
-Password: TestPass123!
+```http
+GET /api/vouchers
+```
 
-Available operations:
+Accounts access should remain read-only if that is the permission policy implemented by the application.
 
-Create expense vouchers.
-Save vouchers as drafts.
-Submit vouchers for approval.
-Track voucher status.
-View rejection reasons.
-Director Account
+### Error Handling
 
-Email: director@example.com
+A REST API should return appropriate HTTP status codes for common errors.
 
-Password: Director@123
+| Status Code | Meaning                                                   |
+| ----------- | --------------------------------------------------------- |
+| `400`       | Invalid request or validation failure.                    |
+| `401`       | Authentication is missing or invalid.                     |
+| `403`       | The user does not have the required permissions.          |
+| `404`       | The requested resource was not found.                     |
+| `409`       | The operation conflicts with the voucher's current state. |
+| `500`       | Unexpected server error.                                  |
 
-Available operations:
+The actual error response format depends on your backend implementation.
 
-View submitted expense vouchers.
-Review expense details.
-Approve pending vouchers.
-Reject vouchers with a reason.
-Accounts Account
+## Security
 
-Email: accounts@example.com
+ExpenseFlow uses authentication and role-based authorization to protect expense voucher operations.
 
-Password: AccountsPass123!
+### JWT Authentication
 
-Available operations:
+JWT tokens are used to authenticate users and authorize access to protected API routes.
 
-View expense voucher records.
-Check voucher statuses.
-Access expense information in read-only mode.
-Demo Account Notes
-These credentials must correspond to accounts created in the application's database.
-Ensure that each account has the correct role assigned.
-If the accounts have not been configured, create them using your application's supported user-registration or account-provisioning process.
-Do not assume that these accounts exist automatically after installing the application.
-For public repositories, use dedicated demo accounts with restricted permissions and non-sensitive test data.
-Never publish real user credentials or production passwords.
-9. Security
+### Role-Based Authorization
 
-ExpenseFlow uses authentication and authorization mechanisms to protect expense voucher operations.
+The application separates permissions among three roles:
 
-Security Features
+* **Employee:** Creates, submits, and tracks expense vouchers.
+* **Director:** Reviews, approves, or rejects submitted vouchers.
+* **Accounts:** Views voucher records and approval statuses.
 
-JWT Authentication
+### Backend Authorization
 
-JSON Web Tokens are used to authenticate users and support protected API access.
+Authorization must be enforced by the backend. Hiding buttons or pages in the frontend alone does not prevent unauthorized API requests.
 
-Role-Based Authorization
+### Input Validation
 
-Application permissions are separated by role:
+Voucher details, claimed amounts, required fields, and rejection reasons should be validated before database operations.
 
-Employee
-Director
-Accounts
+### Secure Configuration
 
-Protected API Routes
+* Store database credentials and JWT secrets in environment variables.
+* Do not commit the real `.env` file to GitHub.
+* Use securely hashed passwords.
+* Use dedicated demo accounts for testing.
+* Avoid publishing production credentials.
 
-Restricted backend endpoints should verify the user's authentication and permissions before allowing operations.
+## Testing
 
-Input Validation
+Before submitting or deploying the project, verify the following functionality.
 
-User input should be validated to help prevent invalid voucher data and malformed requests.
+| Test Case                      | Expected Result                                        |
+| ------------------------------ | ------------------------------------------------------ |
+| Valid login credentials        | User is authenticated.                                 |
+| Invalid login credentials      | Access is denied.                                      |
+| Employee creates a voucher     | Voucher is saved.                                      |
+| Employee saves a draft         | Voucher remains in draft status.                       |
+| Employee submits a voucher     | Voucher enters the approval workflow.                  |
+| Director approves a voucher    | Status changes to approved.                            |
+| Director rejects a voucher     | Status changes to rejected and the reason is recorded. |
+| Employee views voucher status  | Correct status is displayed.                           |
+| Accounts views voucher records | Records are visible in read-only mode.                 |
+| Unauthorized API request       | Access is denied.                                      |
+| Invalid request data           | Appropriate validation error is returned.              |
+| Invalid API endpoint           | Appropriate error response is returned.                |
 
-Environment Variables
+### End-to-End Testing
 
-Sensitive configuration values, including database credentials and JWT secrets, should be stored in environment variables rather than committed to source control.
+1. Log in using an Employee account.
+2. Create an expense voucher.
+3. Save the voucher as a draft.
+4. Submit the voucher for approval.
+5. Log out and sign in as a Director.
+6. Review the submitted voucher.
+7. Approve or reject the voucher.
+8. If rejected, provide a reason.
+9. Sign in as the Employee and verify the updated status.
+10. Sign in as Accounts and confirm that the voucher is visible.
+11. Test that Accounts cannot perform restricted modifications through direct API requests.
 
-Backend Authorization
+## Project Status
 
-Access restrictions must be enforced by the backend. Hiding buttons or pages in the frontend alone does not prevent unauthorized API access.
+**Current Status:** Core application workflow implemented; final verification pending.
 
-10. Testing
+The project is intended to support employee voucher management, director approval, and read-only Accounts access.
 
-Perform the following checks before submitting or deploying the application.
+Before marking the project as complete, verify:
 
-Test Case	Expected Result
-Valid login credentials	User is authenticated successfully
-Invalid login credentials	Access is denied
-Employee creates a voucher	Voucher is saved successfully
-Employee saves a draft	Voucher remains in draft status
-Employee submits a voucher	Voucher enters the approval workflow
-Director approves a voucher	Voucher status changes to approved
-Director rejects a voucher	Voucher is rejected with a recorded reason
-Employee views voucher status	Correct status is displayed
-Accounts views vouchers	Records are accessible in read-only mode
-Accounts attempts a restricted modification	Backend denies the operation
-Unauthorized API request	Access is denied
-Invalid API endpoint	Appropriate error response is returned
-Invalid request data	Validation error is returned
-Recommended End-to-End Test
-Log in as an employee.
-Create an expense voucher.
-Save the voucher as a draft and verify its status.
-Submit the voucher for approval.
-Log out and log in as a director.
-Review the submitted voucher.
-Approve or reject the voucher.
-If rejected, provide a reason.
-Log in as the employee and verify the updated status.
-Log in as accounts and confirm that the voucher record is visible.
-Verify that accounts cannot modify restricted records through direct API requests.
-11. Project Status
+* Login and JWT authentication.
+* Role-based authorization on protected API endpoints.
+* Voucher creation, draft saving, and submission.
+* Director approval and rejection.
+* Recording and displaying rejection reasons.
+* Accounts read-only permissions.
+* Database operations and error handling.
+* End-to-end workflow testing.
 
-Current Status: Core application workflow implemented; final verification pending.
+Update this status after completing the tests and confirming their results.
 
-The project includes the main employee voucher workflow, director approval process, accounts read-only interface, and role-based functionality.
+## Future Enhancements
 
-The following checks should be completed before declaring the project ready for submission:
+Potential improvements include:
 
-Verify login and JWT authentication.
-Test role-based authorization on protected API endpoints.
-Verify voucher creation, draft saving, and submission.
-Test director approval and rejection.
-Confirm that rejection reasons are recorded and displayed correctly.
-Verify accounts read-only permissions.
-Test database operations and error handling.
-Complete end-to-end workflow testing.
+* Email notifications for approvals and rejections.
+* Expense reports and downloadable summaries.
+* Voucher search, filtering, and pagination.
+* Audit logs for approval decisions.
+* Dashboard analytics and expense summaries.
+* Automated unit and integration tests.
+* Cloud deployment with HTTPS.
+* Password reset and login rate limiting.
 
-The final completion status should reflect the actual results of these tests.
-
-12. Future Enhancements
-
-Potential improvements for future versions include:
-
-Email notifications for voucher approvals and rejections.
-Expense reports and downloadable summaries.
-Voucher search, filtering, and pagination.
-Audit logs for approval and rejection actions.
-Dashboard analytics and expense summaries.
-Automated unit and integration tests.
-Deployment to a cloud hosting platform.
-13. Learning Outcomes
+## Learning Outcomes
 
 This project provides practical experience in:
 
-Full-stack web application development.
-React-based frontend development.
-REST API development using Node.js and Express.js.
-JWT-based authentication.
-Role-based authorization.
-MySQL database integration.
-Expense voucher workflow management.
-API testing with Postman.
-Application security and input validation.
-Git and GitHub version control.
-14. Author
+* Full-stack web application development.
+* React and Vite frontend development.
+* REST API development using Node.js and Express.js.
+* JWT-based authentication.
+* Role-based authorization.
+* MySQL database integration.
+* Expense voucher workflow management.
+* API testing with Postman.
+* Input validation and application security.
+* Git and GitHub version control.
 
-SK Naseeb Kamal
+## Author
+
+**SK Naseeb Kamal**
 
 B.Tech in Computer Science and Engineering
 
-GitHub: Sknaseebkamal
+GitHub: [Sknaseebkamal](https://github.com/Sknaseebkamal)
 
-15. Conclusion
+## Conclusion
 
-ExpenseFlow provides a structured approach to managing employee expense vouchers through a role-based approval workflow. By separating employee, director, and accounts responsibilities, the application helps organize expense submissions, approval decisions, and voucher records.
+ExpenseFlow provides a structured approach to managing employee expense vouchers through a role-based approval workflow.
+
+By separating employee, director, and accounts responsibilities, the application helps organize expense submissions, approval decisions, and financial records.
 
 The project demonstrates practical implementation of full-stack development, database integration, authentication, authorization, and REST API communication.
 
-ExpenseFlow — Simplifying Expense Voucher Management Through a Secure, Role-Based Workflow.
+**ExpenseFlow — Simplifying Expense Voucher Management Through a Secure, Role-Based Workflow.**
